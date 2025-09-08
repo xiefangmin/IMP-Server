@@ -1,0 +1,31 @@
+{
+  "server": {
+    "ports": [9090, 9091],
+    "thread_pool_size": 16,
+    "max_connections": 1000,
+    "ip_address": "192.168.25.130"
+  },
+  
+  "yolo": {
+    "model_path": "models/yolov8n.onnx",
+    "segmentation_model_path": "models/yolov8x-seg.onnx",
+    "confidence_threshold": 0.1,
+    "nms_threshold": 0.5,
+    "input_width": 640,
+    "input_height": 640,
+    "backend": "OPENCV",
+    "target": "CPU"
+  },
+
+  "image_processing": {
+    "max_image_size": 10485760,
+    "supported_formats": ["jpg", "jpeg", "png", "bmp", "tiff"],
+    "output_quality": 95
+  },
+  "logging": {
+    "level": "INFO",
+    "enable_console": false,
+    "enable_file": true,
+    "log_file": "server.log"
+  }
+}

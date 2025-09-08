@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能图像处理中心</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --subtle-text: #6b7280;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: var(--secondary-bg);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--subtle-text);
+            margin-top: 0.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .processing-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .upload-panel, .options-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: #eef2ff;
+        }
+
+        #drop-zone p {
+            margin: 0.5rem 0 0;
+            color: var(--subtle-text);
+        }
+        
+        #file-input { display: none; }
+
+        #image-preview-container {
+            margin-top: 1rem;
+            text-align: center;
+            display: none;
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .options-panel h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 滑动条样式 */
+        #blur-intensity {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        #blur-intensity::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        #blur-intensity::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        #blur-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        /* 锐化滑动条样式 */
+        #sharpen-intensity {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        #sharpen-intensity::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        #sharpen-intensity::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        #sharpen-value {
+            color: #2196F3;
+            font-weight: bold;
+        }
+        #filter-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+        #submit-button {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: auto; /* Pushes button to the bottom */
+        }
+        #submit-button:hover {
+            background-color: var(--primary-hover);
+        }
+        #submit-button:disabled {
+            background-color: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .result-card {
+            text-align: center;
+            display: none;
+        }
+        .result-card h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+        #processed-image {
+            max-width: 100%;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+        }
+        #download-link {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--success-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        #download-link:hover { background-color: #059669; }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .processing-area {
+                grid-template-columns: 1fr;
+            }
+            body { padding: 1rem; }
+            .header h1 { font-size: 2rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header">
+        <h1>AI图像处理中心</h1>
+        <p>上传您的图片，选择处理效果，支持传统滤镜、AI目标检测、图像分割和检测+分割组合，即可获得高质量结果。</p>
+    </div>
+
+    <div class="card processing-area">
+        <div class="upload-panel">
+            <input type="file" id="file-input" accept="image/*">
+            <div id="drop-zone">
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16" style="color: var(--subtle-text);">
+                    <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
+                    <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
+                </svg>
+                <p id="drop-zone-text"><strong>点击选择文件</strong> 或拖拽到此处</p>
+                <div id="image-preview-container">
+                    <img id="image-preview" src="" alt="图片预览">
+                </div>
+            </div>
+        </div>
+        <div class="options-panel">
+            <h3>处理选项</h3>
+            <div class="form-group">
+                <label for="filter-select">选择滤镜效果</label>
+                <select id="filter-select" name="filter">
+                    <option value="none">无效果 (原图)</option>
+                    <option value="grayscale">灰度滤镜</option>
+                    <option value="blur">高斯模糊</option>
+                    <option value="canny">Canny边缘检测</option>
+                    <option value="sepia">复古棕褐色</option>
+                    <option value="emboss">浮雕效果</option>
+                    <option value="sharpen">锐化滤镜</option>
+                    <option value="cartoon">卡通化效果</option>
+                    <option value="oil_painting">油画效果</option>
+                    <option value="yolo_detect">YOLOv8目标检测</option>
+                    <option value="yolo_segment">YOLOv8图像分割</option>
+                    <option value="yolo_segment_with_boxes">YOLOv8目标检测+分割</option>
+                </select>
+            </div>
+            
+            <!-- 高斯模糊强度控制 -->
+            <div class="form-group" id="blur-intensity-group" style="display: none;">
+                <label for="blur-intensity">模糊强度: <span id="blur-value">15</span></label>
+                <input type="range" id="blur-intensity" name="blur_intensity" min="3" max="51" value="15" step="2">
+                <div class="slider-labels">
+                    <span>轻微</span>
+                    <span>中等</span>
+                    <span>强烈</span>
+                </div>
+            </div>
+            
+            <!-- 锐化强度控制 -->
+            <div class="form-group" id="sharpen-intensity-group" style="display: none;">
+                <label for="sharpen-intensity">锐化强度: <span id="sharpen-value">1.0</span></label>
+                <input type="range" id="sharpen-intensity" name="sharpen_intensity" min="0.1" max="3.0" value="1.0" step="0.1">
+                <div class="slider-labels">
+                    <span>轻微</span>
+                    <span>中等</span>
+                    <span>强烈</span>
+                </div>
+            </div>
+            <button id="submit-button" disabled>
+                <span id="button-text">请先选择图片</span>
+                <div id="spinner" class="spinner" style="display: none;"></div>
+            </button>
+        </div>
+    </div>
+
+    <div class="card result-card" id="result-area">
+        <h2>处理完成！</h2>
+        <img id="processed-image" src="" alt="处理后的图像">
+        <div id="uuid-info" style="margin: 1rem 0; padding: 0.75rem; background-color: #f3f4f6; border-radius: 0.5rem; display: none;">
+            <strong>UUID:</strong> <span id="uuid-display"></span>
+        </div>
+        <a id="download-link" href="" download="processed-image.jpg">下载图像</a>
+    </div>
+
+</div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const filterSelect = document.getElementById('filter-select');
+    const submitButton = document.getElementById('submit-button');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    
+    // 高斯模糊控制元素
+    const blurIntensityGroup = document.getElementById('blur-intensity-group');
+    const blurIntensitySlider = document.getElementById('blur-intensity');
+    const blurValueDisplay = document.getElementById('blur-value');
+    
+    // 锐化强度控制元素
+    const sharpenIntensityGroup = document.getElementById('sharpen-intensity-group');
+    const sharpenIntensitySlider = document.getElementById('sharpen-intensity');
+    const sharpenValueDisplay = document.getElementById('sharpen-value');
+    
+    const resultArea = document.getElementById('result-area');
+    const processedImage = document.getElementById('processed-image');
+    const downloadLink = document.getElementById('download-link');
+
+    const previewContainer = document.getElementById('image-preview-container');
+    const previewImage = document.getElementById('image-preview');
+    const dropZoneText = document.getElementById('drop-zone-text');
+
+    let selectedFile = null;
+
+    // --- 事件监听 ---
+
+    // 点击区域打开文件选择器
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // 拖拽事件
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            handleFile(files[0]);
+        }
+    });
+
+    // 文件选择器变化
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            handleFile(fileInput.files[0]);
+        }
+    });
+
+    // 提交表单
+    submitButton.addEventListener('click', async () => {
+        if (!selectedFile) {
+            alert('请选择一个图像文件！');
+            return;
+        }
+
+        // 生成UUID
+        const uuid = generateUUID();
+        console.log('生成的UUID:', uuid);
+
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+        formData.append('filter', filterSelect.value);
+        
+        // 如果是高斯模糊，添加强度参数
+        if (filterSelect.value === 'blur') {
+            formData.append('blur_intensity', blurIntensitySlider.value);
+        }
+        
+        // 如果是锐化，添加强度参数
+        if (filterSelect.value === 'sharpen') {
+            formData.append('sharpen_intensity', sharpenIntensitySlider.value);
+        }
+        
+        formData.append('uuid', uuid);
+
+        setLoadingState(true);
+
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`服务器错误: ${response.status} - ${errorText}`);
+            }
+
+            const imageBlob = await response.blob();
+            const responseUUID = response.headers.get("X-UUID");
+            displayResult(imageBlob, response.headers.get("content-type"), responseUUID);
+
+        } catch (error) {
+            console.error('上传失败:', error);
+            alert(`处理失败: ${error.message}`);
+        } finally {
+            setLoadingState(false);
+        }
+    });
+
+    // 滤镜选择变化事件
+    filterSelect.addEventListener('change', () => {
+        const selectedFilter = filterSelect.value;
+        
+        // 显示或隐藏高斯模糊强度控制
+        if (selectedFilter === 'blur') {
+            blurIntensityGroup.style.display = 'block';
+            sharpenIntensityGroup.style.display = 'none';
+        } else if (selectedFilter === 'sharpen') {
+            sharpenIntensityGroup.style.display = 'block';
+            blurIntensityGroup.style.display = 'none';
+        } else {
+            blurIntensityGroup.style.display = 'none';
+            sharpenIntensityGroup.style.display = 'none';
+        }
+    });
+
+    // 高斯模糊强度滑动条事件
+    blurIntensitySlider.addEventListener('input', () => {
+        blurValueDisplay.textContent = blurIntensitySlider.value;
+    });
+
+    // 锐化强度滑动条事件
+    sharpenIntensitySlider.addEventListener('input', () => {
+        sharpenValueDisplay.textContent = sharpenIntensitySlider.value;
+    });
+
+
+    // --- 辅助函数 ---
+
+    function handleFile(file) {
+        selectedFile = file;
+        
+        // 显示预览
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = 'block';
+            dropZoneText.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+
+        // 启用按钮
+        submitButton.disabled = false;
+        buttonText.textContent = '开始处理';
+    }
+
+    function setLoadingState(isLoading) {
+        if (isLoading) {
+            submitButton.disabled = true;
+            buttonText.textContent = '正在处理...';
+            spinner.style.display = 'block';
+            resultArea.style.display = 'none';
+        } else {
+            submitButton.disabled = false;
+            buttonText.textContent = '开始处理';
+            spinner.style.display = 'none';
+        }
+    }
+
+    function displayResult(imageBlob, contentType, responseUUID) {
+        const imageUrl = URL.createObjectURL(imageBlob);
+        processedImage.src = imageUrl;
+        downloadLink.href = imageUrl;
+
+        const extension = contentType && contentType.includes("png") ? "png" : "jpg";
+        downloadLink.download = `processed-image-${Date.now()}.${extension}`;
+        
+        // 显示UUID信息
+        if (responseUUID) {
+            console.log('服务器返回的UUID:', responseUUID);
+            // 在页面上显示UUID
+            document.getElementById('uuid-display').textContent = responseUUID;
+            document.getElementById('uuid-info').style.display = 'block';
+        }
+        
+        resultArea.style.display = 'block';
+        // 平滑滚动到结果区域
+        resultArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 生成UUID的函数
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
+</script>
+
+</body>
+</html>
+
