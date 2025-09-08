@@ -3,19 +3,15 @@
 #include "Logger.h"
 #include <iostream>
 #include <cstdlib>   // for exit
+#include <unistd.h>  
 
-#ifdef _WIN32
-    #include <getopt.h>  // Windows需要单独安装getopt
-#else
-    #include <unistd.h>  // Linux/Unix系统
-#endif
 
 using namespace std;
 
 
 
 int main(int argc, char* argv[]) {
-    // 加载配置文件
+    // 加载配置文件 单例模式
     ConfigManager& config = ConfigManager::getInstance();
     std::string config_path = "config.json";
     
@@ -98,7 +94,7 @@ int main(int argc, char* argv[]) {
             LOG_INFO("  http://" + server_ip + ":" + std::to_string(port));
         }
         
-        server.run();
+        server.run(); //  启动
     } catch (const std::runtime_error& e) {
         LOG_ERROR("服务器启动失败: " + std::string(e.what()));
         return 1;
