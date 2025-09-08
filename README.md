@@ -1,6 +1,6 @@
 # 🖼️ AI图像处理中心
 
-一个基于C++和OpenCV的高性能图像处理Web服务器，集成了多种传统图像滤镜和AI深度学习功能，支持实时图像分割、目标检测和智能滤镜处理。
+一个基于C++和OpenCV的图像处理Web服务器，集成了多种传统图像滤镜和AI深度学习功能，支持实时图像分割、目标检测和智能滤镜处理。
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)
@@ -68,19 +68,19 @@
           └──────────────────────┼──────────────────────┘
                                  │ HTTP
                     ┌─────────────▼─────────────┐
-                    │     Multi-Port Server    │
-                    │    (8080-8099)           │
+                    │     Multi-Port Server     │
+                    │    (8080-8099)            │
                     └─────────────┬─────────────┘
-                                 │
+                                  │
                     ┌─────────────▼─────────────┐
-                    │      Thread Pool         │
-                    │   (Auto CPU Detection)   │
+                    │       Thread Pool         │
+                    │   (Auto CPU Detection)    │
                     └─────────────┬─────────────┘
-                                 │
+                                  │
                     ┌─────────────▼─────────────┐
                     │   Image Processor         │
                     │  ┌─────────────────────┐  │
-                    │  │  Traditional Filters │  │
+                    │  │ Traditional Filters │  │
                     │  │  AI Deep Learning   │  │
                     │  │  Parameter Control  │  │
                     │  └─────────────────────┘  │
@@ -246,33 +246,13 @@ curl -X POST -F "image=@test.jpg" -F "filter=yolo_segment" http://localhost:8080
 ```
 
 
-
-
 #### 运行时问题
 ```bash
 # 端口占用检查
 netstat -tlnp | grep :9090
 netstat -anop | grep :9090
 
-
-# 配置文件检查
-cat config.json | jq .  # 验证JSON格式
 ```
-
-#### AI功能问题
-- **模型加载失败**: 检查ONNX文件完整性和OpenCV版本
-- **检测无结果**: 调整置信度阈值，检查图像质量
-- **分割效果差**: 确保图像包含COCO数据集支持的物体
-- **推理速度慢**: 考虑使用GPU版本OpenCV或优化模型
-
-
-
-
-
-### 并发性能
-- **单端口**: 1000+ QPS
-- **多端口**: 5000+ QPS
-- **内存使用**: 500MB (基础) + 100MB/端口
 
 
 

@@ -5,6 +5,8 @@ project(ImageServer)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+
 # 查找OpenCV包
 find_package(OpenCV REQUIRED)
 
@@ -19,46 +21,6 @@ if(NOT nlohmann_json_FOUND)
     message(STATUS "手动设置nlohmann_json包含目录: ${nlohmann_json_INCLUDE_DIRS}")
 endif()
 
-# 打印nlohmann/json详细信息用于诊断
-message(STATUS "=== nlohmann/json 诊断信息 ===")
-message(STATUS "nlohmann_json version: ${nlohmann_json_VERSION}")
-message(STATUS "nlohmann_json found: ${nlohmann_json_FOUND}")
-message(STATUS "nlohmann_json include dirs: ${nlohmann_json_INCLUDE_DIRS}")
-message(STATUS "================================")
-
-# 打印OpenCV详细信息用于诊断
-message(STATUS "=== OpenCV 诊断信息 ===")
-message(STATUS "OpenCV version: ${OpenCV_VERSION}")
-message(STATUS "OpenCV include dirs: ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
-message(STATUS "DNN module found: ${OpenCV_DNN_FOUND}")
-message(STATUS "OpenCV modules: ${OpenCV_MODULES}")
-message(STATUS "=========================")
-
-# # 检查OpenCV是否包含DNN模块
-# if(NOT OpenCV_DNN_FOUND)
-#     message(FATAL_ERROR 
-#         "OpenCV DNN module is required for YOLOv8 support.\n"
-#         "Current OpenCV version: ${OpenCV_VERSION}\n"
-#         "DNN module found: ${OpenCV_DNN_FOUND}\n"
-#         "\n"
-#         "解决方案:\n"
-#         "1. Windows: 下载预编译的OpenCV with DNN支持\n"
-#         "   - 访问 https://opencv.org/releases/\n"
-#         "   - 下载 'OpenCV - Windows' 版本\n"
-#         "   - 解压并设置环境变量\n"
-#         "\n"
-#         "2. 使用vcpkg安装:\n"
-#         "   vcpkg install opencv[contrib]:x64-windows\n"
-#         "\n"
-#         "3. 使用conda安装:\n"
-#         "   conda install opencv\n"
-#         "\n"
-#         "4. 从源码编译OpenCV with DNN支持:\n"
-#         "   - 确保启用OPENCV_DNN_OPENCL=ON\n"
-#         "   - 确保启用OPENCV_ENABLE_NONFREE=ON\n"
-#     )
-# endif()
 
 # 包含目录
 include_directories(include)
@@ -104,7 +66,6 @@ file(COPY config.json DESTINATION ${CMAKE_BINARY_DIR})
 # 创建models目录
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/models)
 
-# 配置信息已在上面打印
 
 # 安装规则
 install(TARGETS image_server DESTINATION bin)
