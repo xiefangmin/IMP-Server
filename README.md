@@ -53,7 +53,7 @@
 - **核心语言**: C++17
 - **图像处理**: OpenCV 4.9.0
 - **网络框架**: 自定义epoll服务器
-- **并发处理**: 智能线程池
+- **并发处理**: 线程池
 - **AI推理**: ONNX Runtime 
 - **配置管理**: JSON配置文件支持
 - **日志系统**: 多级别日志记录
@@ -262,4 +262,5 @@ netstat -anop | grep :9090
 - [OpenCV官方文档](https://docs.opencv.org/)
 - [YOLOv8官方文档](https://docs.ultralytics.com/)
 - [ONNX Runtime文档](https://onnxruntime.ai/)
+
 
